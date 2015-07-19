@@ -553,6 +553,43 @@ class FtpClient implements Countable
     }
 
     /**
+     * Bownloads a file from the FTP server and saves to an open file
+     *
+     * @param string file
+     * @param resource $handle
+     * @return FtpClient
+     * @throws FtpException When the transfer fails
+     */
+    public function getToHandle($remote_file, $handle)
+    {
+        if ($this->ftp->fget($handle, $remote_file, FTP_BINARY)){
+            rewind($handle);
+            return $this;
+        }
+
+        throw new FtpException('Unable to get the file "'.$remote_file.'"');
+    }
+
+    /**
+     * Reads the content of a remote file to a string
+     *
+     * @param string $remote_file
+     * @return string
+     * @throws FtpException When the fransfer fails
+     */
+    public function getToString($remote_file)
+    {
+        $handle = fopen('php://temp', 'w');
+
+        $this->getToHandle($remote_file, $handle);
+        
+        $stats = fstat($handle);
+        $contents = fread($handle, $stats['size']);
+        fclose($handle);
+        return $contents;
+    }
+
+    /**
      * Uploads a file to the server
      *
      * @param  string       $local_file
@@ -574,6 +611,28 @@ class FtpClient implements Countable
         );
     }
 
+    /**
+     * Downloads a file from the server to a local directory
+     *
+     * @param string $local_path
+     * @param string $remote_file
+     * @return FtpClient
+     * @throws FtpException When the transfer fails
+     */
+    public function getToPath($local_path, $remote_file)
+    {
+        $local_path = preg_match("/.*\/$/", $local_path) ? $local_path : $local_path . '/';
+        $local_file = $local_path . basename($remote_file);
+
+        if ($this->ftp->get($local_file, $remote_file, FTP_BINARY)) {
+            return $this;
+        }
+
+        throw new FtpException(
+            'Unable to get the remote file "'.$remote_file.'"'
+        );
+    }
+ 
     /**
      * Upload files
      * @param  string    $source_directory
