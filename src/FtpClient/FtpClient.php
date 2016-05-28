@@ -194,8 +194,8 @@ class FtpClient implements Countable
 	 * @param string $username
 	 * @param string $password
 	 *
-	 * @throws FtpException
-	 * @return FtpClient If the login is incorrect
+	 * @return FtpClient
+     * @throws FtpException If the login is incorrect
 	 */
     public function login($username = 'anonymous', $password = '')
     {
