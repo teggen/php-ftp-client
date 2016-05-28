@@ -160,12 +160,19 @@ class FtpClient implements Countable
         return $this;
     }
 
+    /**
+     * Closes an FTP connection
+     *
+     * @return bool
+     */
 	public function close()
 	{
 		if ($this->conn) {
 			$this->ftp->close();
 			$this->conn = null;
+            return true;
 		}
+        return false;
 	}
 
     /**
